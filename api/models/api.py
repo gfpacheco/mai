@@ -1,8 +1,6 @@
 from models.models import (
     Document,
     DocumentMetadataFilter,
-    Query,
-    QueryResult,
 )
 from pydantic import BaseModel
 from typing import List, Optional
@@ -16,12 +14,13 @@ class UpsertResponse(BaseModel):
     ids: List[str]
 
 
-class QueryRequest(BaseModel):
-    queries: List[Query]
+class QuestionRequest(BaseModel):
+    question: str
 
 
-class QueryResponse(BaseModel):
-    results: List[QueryResult]
+class QuestionResponse(BaseModel):
+    question: str
+    answer: str
 
 
 class DeleteRequest(BaseModel):

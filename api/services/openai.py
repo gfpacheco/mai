@@ -25,10 +25,12 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
 
     response = {}
     if deployment == None:
-        response = openai.Embedding.create(input=texts, model="text-embedding-ada-002")
+        response = openai.Embedding.create(
+            input=texts, model="text-embedding-ada-002")
     else:
-        response = openai.Embedding.create(input=texts, deployment_id=deployment)
-    
+        response = openai.Embedding.create(
+            input=texts, deployment_id=deployment)
+
     # Extract the embedding data from the response
     data = response["data"]  # type: ignore
 
@@ -40,7 +42,8 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
 def get_chat_completion(
     messages,
     model="gpt-3.5-turbo",  # use "gpt-4" for better results
-    deployment_id = None
+    deployment_id=None,
+    temperature=1,
 ):
     """
     Generate a chat completion using OpenAI's chat completion API.
@@ -62,15 +65,15 @@ def get_chat_completion(
         response = openai.ChatCompletion.create(
             model=model,
             messages=messages,
+            temperature=temperature,
         )
     else:
         response = openai.ChatCompletion.create(
-            deployment_id = deployment_id,
+            deployment_id=deployment_id,
             messages=messages,
+            temperature=temperature,
         )
-    
 
     choices = response["choices"]  # type: ignore
     completion = choices[0].message.content.strip()
-    print(f"Completion: {completion}")
     return completion

@@ -6,15 +6,17 @@ import os
 from models.api import (
     DeleteRequest,
     DeleteResponse,
-    QueryRequest,
-    QueryResponse,
+    QuestionRequest,
+    QuestionResponse,
     UpsertRequest,
     UpsertResponse,
 )
 from datastore.factory import get_datastore
 from services.file import get_document_from_file
+from services.extract_query import extract_query_from_question
+from services.answer_question import answer_question
 
-from models.models import DocumentMetadata, Source
+from models.models import DocumentMetadata, Source, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
@@ -42,7 +44,6 @@ async def upsert_file(
     file: UploadFile = File(...),
     metadata: Optional[str] = Form(None),
 ):
-    print("got here")
     try:
         metadata_obj = (
             DocumentMetadata.parse_raw(metadata)
@@ -52,15 +53,12 @@ async def upsert_file(
     except:
         metadata_obj = DocumentMetadata(source=Source.file)
 
-    print("got here 2", metadata_obj)
+    metadata_obj.name = file.filename
 
     document = await get_document_from_file(file, metadata_obj)
 
-    print("got here 3", document)
-
     try:
         ids = await datastore.upsert([document])
-        print("got here 4", ids)
         return UpsertResponse(ids=ids)
     except Exception as e:
         print("Error:", e)
@@ -83,17 +81,23 @@ async def upsert(
 
 
 @app.post(
-    "/query",
-    response_model=QueryResponse,
+    "/question",
+    response_model=QuestionResponse,
 )
 async def query_main(
-    request: QueryRequest = Body(...),
+    request: QuestionRequest = Body(...),
 ):
     try:
-        results = await datastore.query(
-            request.queries,
-        )
-        return QueryResponse(results=results)
+        print("request.question:", request.question)
+        query = extract_query_from_question(request.question)
+        print("query:", query)
+        results = await datastore.query([Query(query=query)])
+        print("results:", results)
+        contexts = [result.results[0].text for result in results]
+        print("contexts:", list(contexts))
+        answer = answer_question(request.question, contexts)
+        print("answer:", answer)
+        return QuestionResponse(question=request.question, answer=answer)
     except Exception as e:
         print("Error:", e)
         raise HTTPException(status_code=500, detail="Internal Service Error")

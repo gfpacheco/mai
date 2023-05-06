@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import { twMerge } from 'tailwind-merge';
 
+import { Button } from './Button';
+
 export type QueryInputProps = Omit<
   React.ComponentPropsWithoutRef<'form'>,
   'onSubmit'
@@ -36,7 +38,7 @@ export function QueryInput({ className, onSubmit, ...rest }: QueryInputProps) {
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
-      <button className="bg-blue-500 text-white rounded px-4 py-2">Ask</button>
+      <Button type="submit">Ask</Button>
     </form>
   );
 }

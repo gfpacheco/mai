@@ -12,7 +12,7 @@ tokenizer = tiktoken.get_encoding(
 )  # The encoding scheme to use for tokenization
 
 # Constants
-CHUNK_SIZE = 200  # The target size of each text chunk in tokens
+CHUNK_SIZE = 500  # The target size of each text chunk in tokens
 MIN_CHUNK_SIZE_CHARS = 350  # The minimum size of each text chunk in characters
 MIN_CHUNK_LENGTH_TO_EMBED = 5  # Discard chunks shorter than this
 EMBEDDINGS_BATCH_SIZE = 128  # The number of embeddings to request at a time
@@ -57,7 +57,7 @@ def get_text_chunks(text: str, chunk_token_size: Optional[int]) -> List[str]:
         # Skip the chunk if it is empty or whitespace
         if not chunk_text or chunk_text.isspace():
             # Remove the tokens corresponding to the chunk text from the remaining tokens
-            tokens = tokens[len(chunk) :]
+            tokens = tokens[len(chunk):]
             # Continue to the next iteration of the loop
             continue
 
@@ -82,7 +82,8 @@ def get_text_chunks(text: str, chunk_token_size: Optional[int]) -> List[str]:
             chunks.append(chunk_text_to_append)
 
         # Remove the tokens corresponding to the chunk text from the remaining tokens
-        tokens = tokens[len(tokenizer.encode(chunk_text, disallowed_special=())) :]
+        tokens = tokens[len(tokenizer.encode(
+            chunk_text, disallowed_special=())):]
 
         # Increment the number of chunks
         num_chunks += 1
@@ -185,7 +186,7 @@ def get_document_chunks(
     for i in range(0, len(all_chunks), EMBEDDINGS_BATCH_SIZE):
         # Get the text of the chunks in the current batch
         batch_texts = [
-            chunk.text for chunk in all_chunks[i : i + EMBEDDINGS_BATCH_SIZE]
+            chunk.text for chunk in all_chunks[i: i + EMBEDDINGS_BATCH_SIZE]
         ]
 
         # Get the embeddings for the batch texts
