@@ -14,6 +14,10 @@ class UpsertResponse(BaseModel):
     ids: List[str]
 
 
+class DocumentsResponse(BaseModel):
+    documents: List[Document]
+
+
 class QuestionRequest(BaseModel):
     question: str
 

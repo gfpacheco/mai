@@ -10,6 +10,7 @@ from models.api import (
     QuestionResponse,
     UpsertRequest,
     UpsertResponse,
+    DocumentsResponse,
 )
 from datastore.factory import get_datastore
 from services.file import get_document_from_file
@@ -65,6 +66,22 @@ async def upsert_file(
         raise HTTPException(status_code=500, detail=f"str({e})")
 
 
+@app.get(
+    "/documents",
+    response_model=DocumentsResponse,
+)
+async def documents():
+    try:
+        documents = await datastore.list_documents()
+        return DocumentsResponse(documents=documents)
+    except Exception as e:
+        if "Query was not successful!" in str(e):
+            return DocumentsResponse(documents=[])
+
+        print("Error:", e)
+        raise HTTPException(status_code=500, detail="Internal Service Error")
+
+
 @app.post(
     "/upsert",
     response_model=UpsertResponse,
@@ -88,15 +105,10 @@ async def query_main(
     request: QuestionRequest = Body(...),
 ):
     try:
-        print("request.question:", request.question)
         query = extract_query_from_question(request.question)
-        print("query:", query)
         results = await datastore.query([Query(query=query)])
-        print("results:", results)
         contexts = [result.results[0].text for result in results]
-        print("contexts:", list(contexts))
         answer = answer_question(request.question, contexts)
-        print("answer:", answer)
         return QuestionResponse(question=request.question, answer=answer)
     except Exception as e:
         print("Error:", e)

@@ -26,19 +26,21 @@ export function QueryInput({ className, onSubmit, ...rest }: QueryInputProps) {
 
   return (
     <form
-      className={twMerge('flex items-end gap-4', className)}
+      className={twMerge('flex items-end', className)}
       {...rest}
       onSubmit={handleSubmit}
     >
       <label className="flex-1 flex flex-col gap-2">
-        Ask a question:
+        <span className="font-bold">Ask a question:</span>
         <input
-          className="border rounded px-4 py-2"
+          className="h-10 border border-r-0 rounded-tl rounded-bl px-4"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
-      <Button type="submit">Ask</Button>
+      <Button className="rounded-tl-none rounded-bl-none" type="submit">
+        Ask
+      </Button>
     </form>
   );
 }

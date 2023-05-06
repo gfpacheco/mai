@@ -84,3 +84,10 @@ class DataStore(ABC):
         Returns whether the operation was successful.
         """
         raise NotImplementedError
+
+    @abstractmethod
+    async def list_documents(self) -> List[Document]:
+        """
+        Returns a list of all documents in the datastore.
+        """
+        raise NotImplementedError

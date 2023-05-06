@@ -11,6 +11,8 @@ from weaviate.util import generate_uuid5
 
 from datastore.datastore import DataStore
 from models.models import (
+    Document,
+    DocumentMetadata,
     DocumentChunk,
     DocumentChunkMetadata,
     DocumentMetadataFilter,
@@ -30,8 +32,10 @@ WEAVIATE_CLASS = os.environ.get("WEAVIATE_CLASS", "OpenAIDocument")
 
 WEAVIATE_BATCH_SIZE = int(os.environ.get("WEAVIATE_BATCH_SIZE", 20))
 WEAVIATE_BATCH_DYNAMIC = os.environ.get("WEAVIATE_BATCH_DYNAMIC", False)
-WEAVIATE_BATCH_TIMEOUT_RETRIES = int(os.environ.get("WEAVIATE_TIMEOUT_RETRIES", 3))
-WEAVIATE_BATCH_NUM_WORKERS = int(os.environ.get("WEAVIATE_BATCH_NUM_WORKERS", 1))
+WEAVIATE_BATCH_TIMEOUT_RETRIES = int(
+    os.environ.get("WEAVIATE_TIMEOUT_RETRIES", 3))
+WEAVIATE_BATCH_NUM_WORKERS = int(
+    os.environ.get("WEAVIATE_BATCH_NUM_WORKERS", 1))
 
 SCHEMA = {
     "class": WEAVIATE_CLASS,
@@ -51,6 +55,11 @@ SCHEMA = {
             "name": "text",
             "dataType": ["text"],
             "description": "The chunk's text",
+        },
+        {
+            "name": "name",
+            "dataType": ["string"],
+            "description": "The name of the document",
         },
         {
             "name": "source",
@@ -125,7 +134,8 @@ class WeaviateDataStore(DataStore):
 
         if self.client.schema.contains(SCHEMA):
             current_schema = self.client.schema.get(WEAVIATE_CLASS)
-            current_schema_properties = extract_schema_properties(current_schema)
+            current_schema_properties = extract_schema_properties(
+                current_schema)
 
             logger.debug(
                 f"Found index {WEAVIATE_CLASS} with properties {current_schema_properties}"
@@ -156,7 +166,8 @@ class WeaviateDataStore(DataStore):
 
         with self.client.batch as batch:
             for doc_id, doc_chunks in chunks.items():
-                logger.debug(f"Upserting {doc_id} with {len(doc_chunks)} chunks")
+                logger.debug(
+                    f"Upserting {doc_id} with {len(doc_chunks)} chunks")
                 for doc_chunk in doc_chunks:
                     # we generate a uuid regardless of the format of the document_id because
                     # weaviate needs a uuid to store each document chunk and
@@ -204,6 +215,7 @@ class WeaviateDataStore(DataStore):
                             "chunk_id",
                             "document_id",
                             "text",
+                            "name",
                             "source",
                             "source_id",
                             "url",
@@ -225,6 +237,7 @@ class WeaviateDataStore(DataStore):
                             "chunk_id",
                             "document_id",
                             "text",
+                            "name",
                             "source",
                             "source_id",
                             "url",
@@ -250,6 +263,7 @@ class WeaviateDataStore(DataStore):
                     score=resp["_additional"]["score"],
                     metadata=DocumentChunkMetadata(
                         document_id=resp["document_id"] if resp["document_id"] else "",
+                        name=resp["name"],
                         source=Source(resp["source"]),
                         source_id=resp["source_id"],
                         url=resp["url"],
@@ -280,13 +294,15 @@ class WeaviateDataStore(DataStore):
 
         if ids:
             operands = [
-                {"path": ["document_id"], "operator": "Equal", "valueString": id}
+                {"path": ["document_id"],
+                    "operator": "Equal", "valueString": id}
                 for id in ids
             ]
 
             where_clause = {"operator": "Or", "operands": operands}
 
-            logger.debug(f"Deleting vectors from index {WEAVIATE_CLASS} with ids {ids}")
+            logger.debug(
+                f"Deleting vectors from index {WEAVIATE_CLASS} with ids {ids}")
             result = self.client.batch.delete_objects(
                 class_name=WEAVIATE_CLASS, where=where_clause, output="verbose"
             )
@@ -370,3 +386,31 @@ class WeaviateDataStore(DataStore):
                 return True
         except ValueError:
             return False
+
+    async def list_documents(self) -> List[Document]:
+        """
+        List all documents in the datastore
+        """
+        logger.debug(f"Listing all documents in index {WEAVIATE_CLASS}")
+        result = self.client.query.get(
+            WEAVIATE_CLASS,
+            [
+                "document_id",
+                "name",
+                "source",
+                "source_id",
+                "url",
+                "created_at",
+                "author",
+            ],
+        ).do()
+
+        print("result", result)
+
+        documents: Dict[str, str] = {}
+        response = result["data"]["Get"][WEAVIATE_CLASS]
+
+        for resp in response:
+            documents[resp["document_id"]] = resp["name"]
+
+        return [Document(id=id, text="", metadata=DocumentMetadata(name=name)) for id, name in documents.items()]
