@@ -1,12 +1,14 @@
 FROM node:18-alpine as frontend-stage
 
-WORKDIR /app
+ENV VITE_API_URL=/api
 
-COPY ./app/package.json ./app/pnpm-lock.yaml /app/
+WORKDIR /tmp
+
+COPY ./app/package.json ./app/pnpm-lock.yaml /tmp/
 
 RUN npm install -g pnpm && pnpm install
 
-COPY ./app /app
+COPY ./app /tmp
 
 RUN pnpm run build
 
@@ -23,6 +25,8 @@ RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 FROM python:3.10
 
 WORKDIR /code
+
+COPY --from=frontend-stage /tmp/dist /code/app/dist
 
 COPY --from=requirements-stage /tmp/requirements.txt /code/requirements.txt
 
