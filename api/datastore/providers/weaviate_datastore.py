@@ -25,9 +25,7 @@ from api.models.models import (
 
 WEAVIATE_HOST = os.environ.get("WEAVIATE_HOST", "http://127.0.0.1")
 WEAVIATE_PORT = os.environ.get("WEAVIATE_PORT", "8080")
-WEAVIATE_USERNAME = os.environ.get("WEAVIATE_USERNAME", None)
-WEAVIATE_PASSWORD = os.environ.get("WEAVIATE_PASSWORD", None)
-WEAVIATE_SCOPES = os.environ.get("WEAVIATE_SCOPES", "offline_access")
+WEAVIATE_API_KEY = os.environ.get("WEAVIATE_API_KEY", None)
 WEAVIATE_CLASS = os.environ.get("WEAVIATE_CLASS", "OpenAIDocument")
 
 WEAVIATE_BATCH_SIZE = int(os.environ.get("WEAVIATE_BATCH_SIZE", 20))
@@ -150,9 +148,9 @@ class WeaviateDataStore(DataStore):
 
     @staticmethod
     def _build_auth_credentials():
-        if WEAVIATE_USERNAME and WEAVIATE_PASSWORD:
-            return weaviate.auth.AuthClientPassword(
-                WEAVIATE_USERNAME, WEAVIATE_PASSWORD, WEAVIATE_SCOPES
+        if WEAVIATE_API_KEY:
+            return weaviate.auth.AuthApiKey(
+                WEAVIATE_API_KEY
             )
         else:
             return None
