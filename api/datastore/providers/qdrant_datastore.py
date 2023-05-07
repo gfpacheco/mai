@@ -6,8 +6,8 @@ from grpc._channel import _InactiveRpcError
 from qdrant_client.http.exceptions import UnexpectedResponse
 from qdrant_client.http.models import PayloadSchemaType
 
-from datastore.datastore import DataStore
-from models.models import (
+from api.datastore.datastore import DataStore
+from api.models.models import (
     DocumentChunk,
     DocumentMetadataFilter,
     QueryResult,
@@ -18,7 +18,7 @@ from qdrant_client.http import models as rest
 
 import qdrant_client
 
-from services.date import to_unix_timestamp
+from api.services.date import to_unix_timestamp
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost")
 QDRANT_PORT = os.environ.get("QDRANT_PORT", "6333")
@@ -93,7 +93,8 @@ class QdrantDataStore(DataStore):
             QueryResult(
                 query=query.query,
                 results=[
-                    self._convert_scored_point_to_document_chunk_with_score(point)
+                    self._convert_scored_point_to_document_chunk_with_score(
+                        point)
                     for point in result
                 ],
             )
@@ -157,7 +158,8 @@ class QdrantDataStore(DataStore):
     ) -> rest.SearchRequest:
         return rest.SearchRequest(
             vector=query.embedding,
-            filter=self._convert_metadata_filter_to_qdrant_filter(query.filter),
+            filter=self._convert_metadata_filter_to_qdrant_filter(
+                query.filter),
             limit=query.top_k,  # type: ignore
             with_payload=True,
             with_vector=False,
@@ -199,7 +201,8 @@ class QdrantDataStore(DataStore):
 
                 must_conditions.append(
                     rest.FieldCondition(
-                        key=payload_key, match=rest.MatchValue(value=attr_value)
+                        key=payload_key, match=rest.MatchValue(
+                            value=attr_value)
                     )
                 )
 
@@ -208,10 +211,12 @@ class QdrantDataStore(DataStore):
             end_date = metadata_filter.end_date
             if start_date or end_date:
                 gte_filter = (
-                    to_unix_timestamp(start_date) if start_date is not None else None
+                    to_unix_timestamp(
+                        start_date) if start_date is not None else None
                 )
                 lte_filter = (
-                    to_unix_timestamp(end_date) if end_date is not None else None
+                    to_unix_timestamp(
+                        end_date) if end_date is not None else None
                 )
                 must_conditions.append(
                     rest.FieldCondition(

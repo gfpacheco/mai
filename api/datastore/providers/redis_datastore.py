@@ -15,8 +15,8 @@ from redis.commands.search.field import (
     VectorField,
 )
 from typing import Dict, List, Optional
-from datastore.datastore import DataStore
-from models.models import (
+from api.datastore.datastore import DataStore
+from api.models.models import (
     DocumentChunk,
     DocumentMetadataFilter,
     DocumentChunkWithScore,
@@ -24,7 +24,7 @@ from models.models import (
     QueryResult,
     QueryWithEmbedding,
 )
-from services.date import to_unix_timestamp
+from api.services.date import to_unix_timestamp
 
 # Read environment variables for Redis
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
@@ -44,9 +44,12 @@ REDIS_REQUIRED_MODULES = [
     {"name": "search", "ver": 20600},
     {"name": "ReJSON", "ver": 20404}
 ]
-REDIS_DEFAULT_ESCAPED_CHARS = re.compile(r"[,.<>{}\[\]\\\"\':;!@#$%^&*()\-+=~\/ ]")
+REDIS_DEFAULT_ESCAPED_CHARS = re.compile(
+    r"[,.<>{}\[\]\\\"\':;!@#$%^&*()\-+=~\/ ]")
 
 # Helper functions
+
+
 def unpack_schema(d: dict):
     for v in d.values():
         if isinstance(v, dict):
@@ -54,17 +57,17 @@ def unpack_schema(d: dict):
         else:
             yield v
 
+
 async def _check_redis_module_exist(client: redis.Redis, modules: List[dict]):
 
     installed_modules = (await client.info()).get("modules", [])
-    installed_modules = {module["name"]: module for module in installed_modules}
+    installed_modules = {module["name"]                         : module for module in installed_modules}
     for module in modules:
         if module["name"] not in installed_modules or int(installed_modules[module["name"]]["ver"]) < int(module["ver"]):
-            error_message =  "You must add the RediSearch (>= 2.6) and ReJSON (>= 2.4) modules from Redis Stack. " \
+            error_message = "You must add the RediSearch (>= 2.6) and ReJSON (>= 2.4) modules from Redis Stack. " \
                 "Please refer to Redis Stack docs: https://redis.io/docs/stack/"
             logging.error(error_message)
             raise AttributeError(error_message)
-
 
 
 class RedisDataStore(DataStore):
@@ -94,7 +97,7 @@ class RedisDataStore(DataStore):
             raise e
 
         await _check_redis_module_exist(client, modules=REDIS_REQUIRED_MODULES)
-       
+
         dim = kwargs.get("dim", VECTOR_DIMENSION)
         redisearch_schema = {
             "document_id": TagField("$.document_id", as_name="document_id"),
@@ -186,7 +189,8 @@ class RedisDataStore(DataStore):
             for field, value in metadata.items():
                 if value:
                     if field == "created_at":
-                        redis_metadata[field] = to_unix_timestamp(value)  # type: ignore
+                        redis_metadata[field] = to_unix_timestamp(
+                            value)  # type: ignore
                     else:
                         redis_metadata[field] = value
         data["metadata"] = redis_metadata
@@ -225,7 +229,8 @@ class RedisDataStore(DataStore):
                 if not value:
                     continue
                 if field in redisearch_schema:
-                    filter_str += _typ_to_str(redisearch_schema[field], field, value)
+                    filter_str += _typ_to_str(
+                        redisearch_schema[field], field, value)
                 elif field in redisearch_schema["metadata"]:
                     if field == "source":  # handle the enum
                         value = value.value
@@ -329,7 +334,8 @@ class RedisDataStore(DataStore):
                 query_results.append(result)
 
             # Add to overall results
-            results.append(QueryResult(query=query.query, results=query_results))
+            results.append(QueryResult(
+                query=query.query, results=query_results))
 
         return results
 
@@ -366,9 +372,11 @@ class RedisDataStore(DataStore):
                         f"{REDIS_DOC_PREFIX}:{filter.document_id}:*"
                     )
                     await self._redis_delete(keys)
-                    logging.info(f"Deleted document {filter.document_id} successfully")
+                    logging.info(
+                        f"Deleted document {filter.document_id} successfully")
                 except Exception as e:
-                    logging.info(f"Error deleting document {filter.document_id}: {e}")
+                    logging.info(
+                        f"Error deleting document {filter.document_id}: {e}")
                     raise e
 
         # Delete by explicit ids (Redis keys)

@@ -1,4 +1,4 @@
-from models.models import (
+from api.models.models import (
     Document,
     DocumentMetadataFilter,
 )

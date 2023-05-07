@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["isafulf <isabella@openai.com>"]
 readme = "README.md"
-packages = [{include = "server"}]
+packages = [{include = "api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -29,8 +29,7 @@ redis = "4.5.1"
 llama-index = "0.5.4"
 
 [tool.poetry.scripts]
-start = "server.main:start"
-dev = "local-server.main:start"
+start = "api.main:start"
 
 [tool.poetry.group.dev.dependencies]
 httpx = "^0.23.3"

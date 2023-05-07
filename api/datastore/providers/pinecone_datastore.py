@@ -4,8 +4,8 @@ import pinecone
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 import asyncio
 
-from datastore.datastore import DataStore
-from models.models import (
+from api.datastore.datastore import DataStore
+from api.models.models import (
     DocumentChunk,
     DocumentChunkMetadata,
     DocumentChunkWithScore,
@@ -14,7 +14,7 @@ from models.models import (
     QueryWithEmbedding,
     Source,
 )
-from services.date import to_unix_timestamp
+from api.services.date import to_unix_timestamp
 
 # Read environment variables for Pinecone configuration
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
@@ -91,7 +91,7 @@ class PineconeDataStore(DataStore):
 
         # Split the vectors list into batches of the specified size
         batches = [
-            vectors[i : i + UPSERT_BATCH_SIZE]
+            vectors[i: i + UPSERT_BATCH_SIZE]
             for i in range(0, len(vectors), UPSERT_BATCH_SIZE)
         ]
         # Upsert each batch to Pinecone

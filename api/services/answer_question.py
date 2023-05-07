@@ -1,5 +1,5 @@
 from typing import List
-from services.openai import get_chat_completion
+from api.services.openai import get_chat_completion
 import os
 
 

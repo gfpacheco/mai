@@ -1,4 +1,4 @@
-from datastore.datastore import DataStore
+from api.datastore.datastore import DataStore
 import os
 
 
@@ -8,31 +8,31 @@ async def get_datastore() -> DataStore:
 
     match datastore:
         case "llama":
-            from datastore.providers.llama_datastore import LlamaDataStore
+            from api.datastore.providers.llama_datastore import LlamaDataStore
             return LlamaDataStore()
 
         case "pinecone":
-            from datastore.providers.pinecone_datastore import PineconeDataStore
+            from api.datastore.providers.pinecone_datastore import PineconeDataStore
 
             return PineconeDataStore()
         case "weaviate":
-            from datastore.providers.weaviate_datastore import WeaviateDataStore
+            from api.datastore.providers.weaviate_datastore import WeaviateDataStore
 
             return WeaviateDataStore()
         case "milvus":
-            from datastore.providers.milvus_datastore import MilvusDataStore
+            from api.datastore.providers.milvus_datastore import MilvusDataStore
 
             return MilvusDataStore()
         case "zilliz":
-            from datastore.providers.zilliz_datastore import ZillizDataStore
+            from api.datastore.providers.zilliz_datastore import ZillizDataStore
 
             return ZillizDataStore()
         case "redis":
-            from datastore.providers.redis_datastore import RedisDataStore
+            from api.datastore.providers.redis_datastore import RedisDataStore
 
             return await RedisDataStore.init()
         case "qdrant":
-            from datastore.providers.qdrant_datastore import QdrantDataStore
+            from api.datastore.providers.qdrant_datastore import QdrantDataStore
 
             return QdrantDataStore()
         case _:

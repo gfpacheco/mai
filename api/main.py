@@ -1,9 +1,10 @@
 from typing import Optional
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
+from fastapi.staticfiles import StaticFiles
 import os
 
-from models.api import (
+from api.models.api import (
     DeleteRequest,
     DeleteResponse,
     QuestionRequest,
@@ -12,12 +13,12 @@ from models.api import (
     UpsertResponse,
     DocumentsResponse,
 )
-from datastore.factory import get_datastore
-from services.file import get_document_from_file
-from services.extract_query import extract_query_from_question
-from services.answer_question import answer_question
+from api.datastore.factory import get_datastore
+from api.services.file import get_document_from_file
+from api.services.extract_query import extract_query_from_question
+from api.services.answer_question import answer_question
 
-from models.models import DocumentMetadata, Source, Query
+from api.models.models import DocumentMetadata, Source, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
@@ -36,8 +37,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+api = FastAPI()
+app.mount("/api", api)
 
-@app.post(
+app.mount("/", StaticFiles(directory="app/dist", html=True), name="static")
+
+
+@api.post(
     "/upsert-file",
     response_model=UpsertResponse,
 )
@@ -66,7 +72,7 @@ async def upsert_file(
         raise HTTPException(status_code=500, detail=f"str({e})")
 
 
-@app.get(
+@api.get(
     "/documents",
     response_model=DocumentsResponse,
 )
@@ -82,7 +88,7 @@ async def documents():
         raise HTTPException(status_code=500, detail="Internal Service Error")
 
 
-@app.post(
+@api.post(
     "/upsert",
     response_model=UpsertResponse,
 )
@@ -97,7 +103,7 @@ async def upsert(
         raise HTTPException(status_code=500, detail="Internal Service Error")
 
 
-@app.post(
+@api.post(
     "/question",
     response_model=QuestionResponse,
 )
@@ -115,7 +121,7 @@ async def query_main(
         raise HTTPException(status_code=500, detail="Internal Service Error")
 
 
-@app.delete(
+@api.delete(
     "/delete",
     response_model=DeleteResponse,
 )
@@ -141,9 +147,10 @@ async def delete(
 
 @app.on_event("startup")
 async def startup():
+    print("Starting up...")
     global datastore
     datastore = await get_datastore()
 
 
 def start():
-    uvicorn.run("server.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=True)

@@ -9,8 +9,8 @@ import uuid
 
 from weaviate.util import generate_uuid5
 
-from datastore.datastore import DataStore
-from models.models import (
+from api.datastore.datastore import DataStore
+from api.models.models import (
     Document,
     DocumentMetadata,
     DocumentChunk,

@@ -1,5 +1,5 @@
 import os
-from services.openai import get_chat_completion
+from api.services.openai import get_chat_completion
 
 
 def screen_text_for_pii(text: str) -> bool:

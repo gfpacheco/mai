@@ -1,8 +1,9 @@
-from models.models import Source
-from services.openai import get_chat_completion
+from api.models.models import Source
+from api.services.openai import get_chat_completion
 import json
 from typing import Dict
 import os
+
 
 def extract_metadata_from_document(text: str) -> Dict[str, str]:
     sources = Source.__members__.keys()

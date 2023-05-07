@@ -1,10 +1,10 @@
 from typing import Dict, List, Optional, Tuple
 import uuid
-from models.models import Document, DocumentChunk, DocumentChunkMetadata
+from api.models.models import Document, DocumentChunk, DocumentChunkMetadata
 
 import tiktoken
 
-from services.openai import get_embeddings
+from api.services.openai import get_embeddings
 
 # Global variables
 tokenizer = tiktoken.get_encoding(

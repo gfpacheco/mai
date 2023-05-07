@@ -8,7 +8,7 @@ import docx2txt
 import csv
 import pptx
 
-from models.models import Document, DocumentMetadata
+from api.models.models import Document, DocumentMetadata
 
 
 async def get_document_from_file(
@@ -48,7 +48,8 @@ def extract_text_from_file(file: BufferedReader, mimetype: str) -> str:
     if mimetype == "application/pdf":
         # Extract text from pdf using PyPDF2
         reader = PdfReader(file)
-        extracted_text = " ".join([page.extract_text() for page in reader.pages])
+        extracted_text = " ".join([page.extract_text()
+                                  for page in reader.pages])
     elif mimetype == "text/plain" or mimetype == "text/markdown":
         # Read text from plain text file
         extracted_text = file.read().decode("utf-8")
