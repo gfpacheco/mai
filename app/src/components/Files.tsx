@@ -24,7 +24,7 @@ export function Files({
   return (
     <>
       <div className="flex items-center gap-4">
-        <p className="font-bold">Files</p>
+        <p className="font-bold">Knoweledge base</p>
         {isLoadingDocuments && <LoadingIndicator />}
         <div className="flex-1" />
         {hasDocuments && (
