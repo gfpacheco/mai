@@ -1,5 +1,9 @@
 # MAI API
 
+OpenAI's [chatgpt-retrieval-plugin](https://github.com/openai/chatgpt-retrieval-plugin), but instead of a plugin, it's a standalone app.
+
+My first AI project, I wanted to see how hard it would be and also learn a bit about vector databases on the process.
+
 ## Develop
 
 ### API
