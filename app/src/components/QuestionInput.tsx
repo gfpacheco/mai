@@ -2,25 +2,32 @@ import { useState } from 'react';
 
 import { twMerge } from 'tailwind-merge';
 
-import { Button } from './Button';
+import { Button, ButtonProps } from './Button';
 
-export type QueryInputProps = Omit<
+export type QuestionInputProps = Omit<
   React.ComponentPropsWithoutRef<'form'>,
   'onSubmit'
 > & {
-  onSubmit(query: string): void;
+  onSubmit(question: string): void;
+  loading: ButtonProps['loading'];
 };
 
-export function QueryInput({ className, onSubmit, ...rest }: QueryInputProps) {
-  const [query, setQuery] = useState(
+export function QuestionInput({
+  className,
+  onSubmit,
+  loading,
+  ...rest
+}: QuestionInputProps) {
+  const [question, setQuestion] = useState(
     'what should i do to request an it service',
   );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (query) {
-      onSubmit(query);
+    if (question) {
+      onSubmit(question);
+      setQuestion('');
     }
   }
 
@@ -34,11 +41,15 @@ export function QueryInput({ className, onSubmit, ...rest }: QueryInputProps) {
         <span className="font-bold">Ask a question:</span>
         <input
           className="h-10 border border-r-0 rounded-tl rounded-bl px-4"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
         />
       </label>
-      <Button className="rounded-tl-none rounded-bl-none" type="submit">
+      <Button
+        className="rounded-tl-none rounded-bl-none"
+        type="submit"
+        loading={loading}
+      >
         Ask
       </Button>
     </form>

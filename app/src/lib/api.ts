@@ -9,6 +9,10 @@ export type DocumentsResponse = {
   documents: Document[];
 };
 
+export type AskQuestionResponse = {
+  answer: string;
+};
+
 async function apiFetch<T>(path: string, options?: RequestInit) {
   const res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, options);
   return res.json() as Promise<T>;
@@ -41,6 +45,18 @@ export async function deleteAllDocuments() {
     },
     body: JSON.stringify({
       delete_all: true,
+    }),
+  });
+}
+
+export function askQuestion(question: string) {
+  return apiFetch<AskQuestionResponse>('/question', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      question,
     }),
   });
 }

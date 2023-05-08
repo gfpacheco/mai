@@ -1,21 +1,19 @@
-import { useState } from 'react';
-
 import Dropzone from 'react-dropzone';
 import { twMerge } from 'tailwind-merge';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useAskQuestion } from '../hooks/useAskQuestion';
 import { useDeleteAllDocuments } from '../hooks/useDeleteAllDocuments';
 import { documentsQueryKey, useDocuments } from '../hooks/useDocuments';
 import { useUploadDocuments } from '../hooks/useUploadDocument';
 import { Button } from './Button';
 import { Errors } from './Errors';
 import { LoadingIndicator } from './LoadingIndicator';
-import { QueryInput } from './QueryInput';
+import { QuestionInput } from './QuestionInput';
 
 export function App() {
   const queryClient = useQueryClient();
-  const [answer, setAnswer] = useState('');
 
   const { isLoadingDocuments, documentsError, documentsData } = useDocuments();
 
@@ -28,21 +26,8 @@ export function App() {
     deleteAllDocumentsError,
   } = useDeleteAllDocuments();
 
-  async function handleSubmit(question: string) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/question`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        question,
-      }),
-    });
-
-    const json = await res.json();
-
-    setAnswer(json.answer);
-  }
+  const { askQuestion, isAskingQuestion, askQuestionError, answer } =
+    useAskQuestion();
 
   async function handleDelete(id: string) {
     await fetch(`${import.meta.env.VITE_API_URL}/delete`, {
@@ -63,7 +48,7 @@ export function App() {
   return (
     <div className="mx-auto max-w-screen-lg p-4 flex flex-col gap-4">
       <h1 className="text-2xl font-bold">MAI (MyAI)</h1>
-      <QueryInput onSubmit={handleSubmit} />
+      <QuestionInput onSubmit={askQuestion} loading={isAskingQuestion} />
       {answer && (
         <code className="border rounded bg-neutral-50 p-4">{answer}</code>
       )}
@@ -118,7 +103,12 @@ export function App() {
         )}
       </Dropzone>
       <Errors
-        errors={[documentsError, uploadDocumentsError, deleteAllDocumentsError]}
+        errors={[
+          documentsError,
+          uploadDocumentsError,
+          deleteAllDocumentsError,
+          askQuestionError,
+        ]}
       />
     </div>
   );
