@@ -5,6 +5,7 @@ import { twMerge } from 'tailwind-merge';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useDeleteAllDocuments } from '../hooks/useDeleteAllDocuments';
 import { documentsQueryKey, useDocuments } from '../hooks/useDocuments';
 import { useUploadDocuments } from '../hooks/useUploadDocument';
 import { Button } from './Button';
@@ -21,6 +22,12 @@ export function App() {
   const { uploadDocuments, isUploadingDocuments, uploadDocumentsError } =
     useUploadDocuments();
 
+  const {
+    deleteAllDocuments,
+    isDeletingAllDocuments,
+    deleteAllDocumentsError,
+  } = useDeleteAllDocuments();
+
   async function handleSubmit(question: string) {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/question`, {
       method: 'POST',
@@ -35,20 +42,6 @@ export function App() {
     const json = await res.json();
 
     setAnswer(json.answer);
-  }
-
-  async function handleDeleteAll() {
-    await fetch(`${import.meta.env.VITE_API_URL}/delete`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        delete_all: true,
-      }),
-    });
-
-    queryClient.invalidateQueries({ queryKey: [documentsQueryKey] });
   }
 
   async function handleDelete(id: string) {
@@ -79,7 +72,11 @@ export function App() {
         {isLoadingDocuments && <LoadingIndicator />}
         <div className="flex-1" />
         {hasDocuments && (
-          <Button className="bg-red-500" onClick={handleDeleteAll}>
+          <Button
+            className="bg-red-500"
+            onClick={deleteAllDocuments}
+            loading={isDeletingAllDocuments}
+          >
             Delete All Files
           </Button>
         )}
@@ -120,7 +117,9 @@ export function App() {
           </div>
         )}
       </Dropzone>
-      <Errors errors={[documentsError, uploadDocumentsError]} />
+      <Errors
+        errors={[documentsError, uploadDocumentsError, deleteAllDocumentsError]}
+      />
     </div>
   );
 }

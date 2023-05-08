@@ -32,3 +32,15 @@ async function uploadDocument(document: File) {
     body: data,
   });
 }
+
+export async function deleteAllDocuments() {
+  await apiFetch('/delete', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      delete_all: true,
+    }),
+  });
+}
