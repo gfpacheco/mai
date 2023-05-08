@@ -1,11 +1,10 @@
 import Dropzone from 'react-dropzone';
 import { twMerge } from 'tailwind-merge';
 
-import { useQueryClient } from '@tanstack/react-query';
-
 import { useAskQuestion } from '../hooks/useAskQuestion';
 import { useDeleteAllDocuments } from '../hooks/useDeleteAllDocuments';
-import { documentsQueryKey, useDocuments } from '../hooks/useDocuments';
+import { useDeleteDocument } from '../hooks/useDeleteDocument';
+import { useDocuments } from '../hooks/useDocuments';
 import { useUploadDocuments } from '../hooks/useUploadDocument';
 import { Button } from './Button';
 import { Errors } from './Errors';
@@ -13,8 +12,6 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { QuestionInput } from './QuestionInput';
 
 export function App() {
-  const queryClient = useQueryClient();
-
   const { isLoadingDocuments, documentsError, documentsData } = useDocuments();
 
   const { uploadDocuments, isUploadingDocuments, uploadDocumentsError } =
@@ -26,22 +23,11 @@ export function App() {
     deleteAllDocumentsError,
   } = useDeleteAllDocuments();
 
+  const { deleteDocument, isDeletingDocument, deleteDocumentError } =
+    useDeleteDocument();
+
   const { askQuestion, isAskingQuestion, askQuestionError, answer } =
     useAskQuestion();
-
-  async function handleDelete(id: string) {
-    await fetch(`${import.meta.env.VITE_API_URL}/delete`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ids: [id],
-      }),
-    });
-
-    queryClient.invalidateQueries({ queryKey: [documentsQueryKey] });
-  }
 
   const hasDocuments = documentsData && documentsData.documents.length > 0;
 
@@ -75,7 +61,8 @@ export function App() {
               </span>
               <Button
                 className="rounded-tl-none rounded-bl-none bg-red-500"
-                onClick={() => handleDelete(document.id)}
+                onClick={() => deleteDocument(document.id)}
+                loading={isDeletingDocument}
               >
                 Delete
               </Button>
@@ -107,6 +94,7 @@ export function App() {
           documentsError,
           uploadDocumentsError,
           deleteAllDocumentsError,
+          deleteDocumentError,
           askQuestionError,
         ]}
       />

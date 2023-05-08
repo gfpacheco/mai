@@ -49,6 +49,18 @@ export async function deleteAllDocuments() {
   });
 }
 
+export async function deleteDocument(id: string) {
+  await apiFetch('/delete', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ids: [id],
+    }),
+  });
+}
+
 export function askQuestion(question: string) {
   return apiFetch<AskQuestionResponse>('/question', {
     method: 'POST',
