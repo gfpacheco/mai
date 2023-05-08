@@ -5,7 +5,7 @@ import { LoadingIndicator } from './LoadingIndicator';
 export type FilesProps = {
   isLoadingDocuments: boolean;
   isDeletingAllDocuments: boolean;
-  isDeletingDocument: boolean;
+  deletingDocumentId?: string;
   documentsData?: DocumentsResponse;
   deleteAllDocuments: () => void;
   deleteDocument: (id: string) => void;
@@ -14,7 +14,7 @@ export type FilesProps = {
 export function Files({
   isLoadingDocuments,
   isDeletingAllDocuments,
-  isDeletingDocument,
+  deletingDocumentId,
   documentsData,
   deleteAllDocuments,
   deleteDocument,
@@ -47,7 +47,7 @@ export function Files({
               <Button
                 className="rounded-tl-none rounded-bl-none bg-red-500"
                 onClick={() => deleteDocument(document.id)}
-                loading={isDeletingDocument}
+                loading={deletingDocumentId === document.id}
               >
                 Delete
               </Button>

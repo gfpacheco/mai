@@ -21,7 +21,7 @@ export function App() {
     deleteAllDocumentsError,
   } = useDeleteAllDocuments();
 
-  const { deleteDocument, isDeletingDocument, deleteDocumentError } =
+  const { deleteDocument, deletingDocumentId, deleteDocumentError } =
     useDeleteDocument();
 
   const { askQuestion, isAskingQuestion, askQuestionError, answer } =
@@ -35,7 +35,7 @@ export function App() {
       <Files
         isLoadingDocuments={isLoadingDocuments}
         isDeletingAllDocuments={isDeletingAllDocuments}
-        isDeletingDocument={isDeletingDocument}
+        deletingDocumentId={deletingDocumentId}
         documentsData={documentsData}
         deleteAllDocuments={deleteAllDocuments}
         deleteDocument={deleteDocument}
