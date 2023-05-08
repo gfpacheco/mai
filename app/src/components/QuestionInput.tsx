@@ -18,9 +18,7 @@ export function QuestionInput({
   loading,
   ...rest
 }: QuestionInputProps) {
-  const [question, setQuestion] = useState(
-    'what should i do to request an it service',
-  );
+  const [question, setQuestion] = useState('');
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
