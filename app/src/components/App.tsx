@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { documentsQueryKey, useDocuments } from '../hooks/useDocuments';
+import { useUploadDocuments } from '../hooks/useUploadDocument';
 import { Button } from './Button';
 import { Errors } from './Errors';
 import { LoadingIndicator } from './LoadingIndicator';
@@ -17,18 +18,8 @@ export function App() {
 
   const { isLoadingDocuments, documentsError, documentsData } = useDocuments();
 
-  async function handleDrop(files: File[]) {
-    const data = new FormData();
-    data.append('file', files[0]);
-    data.append('metadata', files[0].name);
-
-    await fetch(`${import.meta.env.VITE_API_URL}/upsert-file`, {
-      method: 'POST',
-      body: data,
-    });
-
-    queryClient.invalidateQueries({ queryKey: [documentsQueryKey] });
-  }
+  const { uploadDocuments, isUploadingDocuments, uploadDocumentsError } =
+    useUploadDocuments();
 
   async function handleSubmit(question: string) {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/question`, {
@@ -110,21 +101,26 @@ export function App() {
           ))}
         </ul>
       )}
-      <Dropzone onDrop={handleDrop}>
+      <Dropzone onDrop={uploadDocuments} disabled={isUploadingDocuments}>
         {({ getRootProps, getInputProps, isDragAccept }) => (
           <div
             className={twMerge(
               'h-24 border-2 border-dashed rounded bg-neutral-50 flex items-center justify-center',
               isDragAccept && 'border-green-200 bg-green-50',
+              isUploadingDocuments && 'opacity-50',
             )}
             {...getRootProps()}
           >
             <input {...getInputProps()} />
-            <p>Drop files here</p>
+            {isUploadingDocuments ? (
+              <LoadingIndicator />
+            ) : (
+              <p>Drop files here</p>
+            )}
           </div>
         )}
       </Dropzone>
-      <Errors errors={[documentsError]} />
+      <Errors errors={[documentsError, uploadDocumentsError]} />
     </div>
   );
 }

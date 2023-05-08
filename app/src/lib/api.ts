@@ -17,3 +17,18 @@ async function apiFetch<T>(path: string, options?: RequestInit) {
 export function fetchDocuments() {
   return apiFetch<DocumentsResponse>('/documents');
 }
+
+export async function uploadDocuments(documents: File[]) {
+  await Promise.all(documents.map(uploadDocument));
+}
+
+async function uploadDocument(document: File) {
+  const data = new FormData();
+  data.append('file', document);
+  data.append('metadata', document.name);
+
+  await apiFetch('/upsert-file', {
+    method: 'POST',
+    body: data,
+  });
+}
