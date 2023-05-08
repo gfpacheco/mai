@@ -15,7 +15,6 @@ from api.models.api import (
 )
 from api.datastore.factory import get_datastore
 from api.services.file import get_document_from_file
-from api.services.extract_query import extract_query_from_question
 from api.services.answer_question import answer_question
 
 from api.models.models import DocumentMetadata, Source, Query
@@ -111,8 +110,7 @@ async def query_main(
     request: QuestionRequest = Body(...),
 ):
     try:
-        query = extract_query_from_question(request.question)
-        results = await datastore.query([Query(query=query)])
+        results = await datastore.query([Query(query=request.question)])
         contexts = [result.results[0].text for result in results]
         answer = answer_question(request.question, contexts)
         return QuestionResponse(question=request.question, answer=answer)
