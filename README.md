@@ -1,4 +1,4 @@
-# MAI API
+# MAI (MyAI)
 
 OpenAI's [chatgpt-retrieval-plugin](https://github.com/openai/chatgpt-retrieval-plugin), but instead of a plugin, it's a standalone app.
 
